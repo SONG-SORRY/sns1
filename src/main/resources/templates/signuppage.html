@@ -1,0 +1,65 @@
+<html layout:decorate="~{signuppage_layout}">
+    <div layout:fragment="content" class="signup-box">
+        <form th:action="@{/user/signup}" th:object="${userCreateForm}" method="post" onsubmit="return validateSignup()">
+            <div class="logo">My SNS</div>
+            <div class="signup-mark">회원가입</div>
+            
+            <div th:replace="~{error_box :: errorboxFragment}"></div>
+
+            <input type="text" th:field="*{email}" placeholder="이메일">
+            <input type="password" th:field="*{password1}" placeholder="비밀번호">
+            <input type="password" th:field="*{password2}" placeholder="비밀번호 (확인)">
+            <input type="text" th:field="*{username}" placeholder="사용자명">
+                
+            <button type="submit" class="btn-submit">가입하기</button>
+            <a href="/user/login" class="signup-footer">뒤로</a>
+        </form>
+
+        <script>
+            function validateSignup() {
+                const email = document.getElementById("email");
+                const pw1 = document.getElementById("password1");
+                const pw2 = document.getElementById("password2");
+                const username = document.getElementById("username");
+                const errorBox = document.getElementById("error-box");
+
+                let errors = [];
+
+                if (email.value.trim() === "") {
+                    errors.push("이메일을 입력해 주세요.");
+                }
+
+                if (pw1.value.trim() === "") {
+                    errors.push("비밀번호를 입력해 주세요.");
+                }
+
+                if (pw2.value.trim() === "") {
+                    errors.push("비밀번호를 다시 한 번 입력해 주세요.");
+                }
+
+                if (pw1.value.trim() !== "" && pw2.value.trim() !== "" && pw1.value !== pw2.value) {
+                    errors.push("비밀번호가 일치하지 않습니다.");
+                    pw2.value = ""; // 틀린 확인칸 비워주기
+                }
+
+                if (username.value.trim() === "") {
+                    errors.push("사용자명을 입력해 주세요.");
+                }
+
+                if (errors.length > 0) {
+                    errorBox.innerHTML = "";
+
+                    errors.forEach(function(msg) {
+                        errorBox.innerHTML += '<div class="error-msg">' + msg + '</div>';
+                    });
+
+                    errorBox.style.display = "block";
+                    return false;
+                }
+
+                errorBox.style.display = "none";
+                return true;
+            }
+        </script>
+    </div>
+</html>

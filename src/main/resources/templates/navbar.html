@@ -1,0 +1,15 @@
+<nav th:fragment="navbarFragment" class="navbar">
+    <div class="nav-container">
+        <a href="/" class="nav-logo">My SNS</a>
+
+        <div class="nav-menu">
+            <a sec:authorize="isAnonymous()" th:href="@{/user/login}" class="nav-item">로그인</a>
+
+            <th:block sec:authorize="isAuthenticated()">
+                <span class="nav-username">
+                    <span sec:authentication="name"></span>&nbsp;님
+                </span>
+                <a th:href="@{/user/login}" class="nav-item">로그아웃</a>
+        </div>
+    </div>
+</nav>

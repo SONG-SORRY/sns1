@@ -1,0 +1,50 @@
+<html layout:decorate="~{loginpage_layout}">
+    <div layout:fragment="content" class="login-box">
+        <form th:action="@{/user/login}" method="post" onsubmit="return validateLogin()">
+            <div class="logo">My SNS</div>
+            <div class="login-mark">로그인</div>
+
+            <div id="error-box" class="error-container" 
+                 th:style="${param.error} ? 'display:block' : 'display:none'">
+                
+                <div id="error-msg" class="error-msg">
+                    <span th:if="${param.error}">이메일 또는 비밀번호가 일치하지 않습니다.</span>
+                </div>
+            </div>
+
+            <input type="text" name="username" id="username" placeholder="이메일">
+            <input type="password" name="password" id="password" placeholder="비밀번호">
+                
+            <button href="/" type="submit" class="btn-submit">로그인</button>
+            <a href="/user/signup" class="login-footer">가입하기</a>
+        </form>
+
+        <script>
+            function validateLogin() {
+                const email = document.getElementById("username");
+                const pass = document.getElementById("password");
+                
+                const errorBox = document.getElementById("error-box");
+                const errorMsg = document.getElementById("error-msg");
+
+                if (email.value.trim() === "") {
+                    errorMsg.innerText = "이메일을 입력해 주세요."; 
+                    errorBox.style.display = "block";
+                    email.focus();
+                    return false;
+                }
+
+                if (pass.value.trim() === "") {
+                    errorMsg.innerText = "비밀번호를 입력해 주세요.";
+                    errorBox.style.display = "block";
+                    pass.focus();
+                    return false;
+                }
+
+                errorBox.style.display = "none";
+                return true;
+            }
+        </script>
+    </div>
+</html>
+

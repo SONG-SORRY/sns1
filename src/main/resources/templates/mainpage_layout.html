@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>My SNS</title>
+    <style>
+        body { 
+            box-sizing: border-box;
+            background-color: #f0f2f5; 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            padding: 0;
+            padding-top: 60px; 
+        }
+        textarea { 
+            box-sizing: border-box;
+            width: 100%; 
+            border: none; 
+            font-size: 15px; 
+            resize: none; 
+            outline: none; 
+            font-family: inherit;
+        }
+        .container { 
+            box-sizing: border-box;
+            max-width: 1200px; 
+            margin: 20px auto;  
+        }
+        .navbar {
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: white;
+            border-bottom: 1px solid #ddd;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+        }
+        .nav-container {
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 1000px;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-logo {
+            box-sizing: border-box;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1877f2;
+            text-decoration: none;
+        }
+        .nav-menu {
+            box-sizing: border-box;
+            display: flex;
+            gap: 20px;
+        }
+        .nav-item {
+            box-sizing: border-box;
+            text-decoration: none;
+            color: #050505;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .nav-username {
+            box-sizing: border-box;
+            font-weight: bold;
+            color: #050505;
+            display: flex;
+            align-items: center; 
+            font-size: 15px;    
+            margin-right: 15px;
+}
+        .post-box { 
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.3); 
+            padding: 15px; 
+            border-radius: 20px; 
+            margin-bottom: 20px; 
+            display: flex;
+            gap: 20px;
+            height: 380px;
+
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .post-left {
+            box-sizing: border-box;
+            flex: 1.2;
+            padding-right: 15px;
+            border-right: 1px solid #dee0e2;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .post-right {
+            box-sizing: border-box;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+
+            overflow: hidden; 
+            border-top-right-radius: 20px; /* post-box와 동일하게 */
+            border-bottom-right-radius: 20px;
+        }
+        .write-box { 
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.3); 
+            padding: 15px; 
+            border-radius: 20px; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+            margin-bottom: 20px; 
+            display: block; 
+            position: sticky;
+            top: 80px;
+            z-index: 900;
+            
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .write-footer {
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+        }
+        .write-input-box {
+            box-sizing: border-box;
+            background: transparent;  
+            border: none; 
+            cursor: pointer; 
+            font-size: 15px;
+            field-sizing: content; 
+            min-height: 80px;
+            line-height: 1.5;
+        }
+        .post-header { 
+            box-sizing: border-box;
+            margin-bottom: 10px; 
+            font-size: 13px; 
+            color: #65676b; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .post-content {
+            box-sizing: border-box;
+            font-size: 15px; 
+            line-height: 1.5; 
+            white-space: pre-wrap; 
+            margin-top: 10px;
+            overflow-y: auto;
+            padding: 0 10px;
+            flex: 1;
+        }
+        .post-footer {
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 15px;
+            gap: 20px;
+            align-items: flex-end;
+            margin-top: auto;
+        }
+        .btn-gray {
+            box-sizing: border-box;
+            background-color: #e4e6eb;
+            color: #4b4f56;            
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            white-space: nowrap;
+        }
+        .btn-blue { 
+            box-sizing: border-box;
+            background-color: #1877f2; 
+            color: white; 
+            border: none; 
+            padding: 8px 20px; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 15px; 
+            white-space: nowrap;
+        }
+        .answer-input-box {
+            box-sizing: border-box;
+            field-sizing: content; 
+            line-height: 1.5;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .answer-box {
+            box-sizing: border-box;
+            background-color: #e4e6eb; 
+            border: none; 
+            padding: 7px 20px; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            font-size: 15px; 
+        }
+        .post-answer-footer {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            padding-right: 15px;
+            flex: 1; 
+            min-height: 0;
+        }
+        .post-answer-footer > :first-child {
+            margin-top: auto;
+        }
+        .post-answer-footer-content-box {
+            box-sizing: border-box;
+            background-color: #e4e6eb; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 20px; 
+            font-size: 15px; 
+        }
+        .horizontal-line {
+            border-top: 1px solid #dee0e2;
+        }
+
+        .post-answer-footer::-webkit-scrollbar {
+            width: 8px;
+        }
+        .post-answer-footer::-webkit-scrollbar-thumb {
+            background-color: #1877f2;
+            border-radius: 4px;
+        }
+        .post-answer-footer::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        .post-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .post-content::-webkit-scrollbar-thumb {
+            background-color: #1877f2;
+            border-radius: 4px;
+        }
+        .post-content::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        .answer-input-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        .answer-input-box::-webkit-scrollbar-thumb {
+            background-color: #1877f2;
+            border-radius: 4px;
+        }
+        .answer-input-box::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        
+    </style>
+</head>
+<body>
+    <nav th:replace="~{navbar :: navbarFragment}"></nav>
+    <th:block layout:fragment="content"></th:block>
+</body>
+</html>

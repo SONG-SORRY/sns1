@@ -1,0 +1,5 @@
+<div th:fragment="errorboxFragment" class="error-container"
+    id="error-box" role="alert" th:style="${#fields.hasAnyErrors()} ? 'display:block' : 'display:none'">   
+    <div class="error-msg" th:each="err : ${#fields.allErrors()}" th:text="${err}">     
+    </div>
+</div>
