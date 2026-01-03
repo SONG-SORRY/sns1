@@ -51,54 +51,30 @@ public class AnswerController {
         return "redirect:/";
     }
 
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping("/api/answer/create/{id}")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> createAnswerApi(
-            @PathVariable("id") Integer id, // PostService가 Integer를 받으므로 Integer 유지
-            @RequestParam("content") String content,
-            Principal principal) {
-        
-            Post post = this.postService.getPost(id);
-            UserData userData = this.userService.getUser(principal.getName());
+        @PreAuthorize("isAuthenticated()")
+        @PostMapping("/api/answer/create/{id}")
+        @ResponseBody
+        public ResponseEntity<Map<String, Object>> createAnswerApi(
+                @PathVariable("id") Integer id,
+                @RequestParam("content") String content,
+                Principal principal) {
+            
+                Post post = this.postService.getPost(id);
+                UserData userData = this.userService.getUser(principal.getName());
 
-            // Service가 리턴한 Answer 객체를 받음
-            Answer answer = this.answerService.create(post, content, userData);
+                Answer answer = this.answerService.create(post, content, userData);
 
-            // 날짜 포맷팅 (예: 2024-01-02 14:30)
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            String formattedDate = answer.getCreateDate().format(formatter);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                String formattedDate = answer.getCreateDate().format(formatter);
 
-            // JSON 데이터 생성
-            Map<String, Object> response = new HashMap<>();
-            response.put("status", "success");
-            response.put("content", answer.getContent());
-            response.put("username", answer.getAuthor().getUsername());
-            response.put("createDate", formattedDate);
+                Map<String, Object> response = new HashMap<>();
+                response.put("status", "success");
+                response.put("content", answer.getContent());
+                response.put("username", answer.getAuthor().getUsername());
+                response.put("createDate", formattedDate);
+                response.put("answerId", answer.getId());
 
-            return ResponseEntity.ok(response);
-        }
+                return ResponseEntity.ok(response);
+            }
     
 }
-
-/*
-private final PostService postService;
-    private final AnswerService answerService;
-    private final UserService userService;
-
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping("/answer/create/{id}")
-    public String createAnswer(@PathVariable("id") Integer id, @Valid AnswerForm answerForm, BindingResult bindingResult, Model model, Principal principal) {
-        
-        Post post = this.postService.getPost(id);
-        UserData userData = this.userService.getUser(principal.getName());
-
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("postList", this.postService.getList());
-            model.addAttribute("postForm", new PostForm());
-            return "mainpage";
-        }
-        this.answerService.create(post, answerForm.getContent(), userData);
-
-        return "redirect:/";
-        */

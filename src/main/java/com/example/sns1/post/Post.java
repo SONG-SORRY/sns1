@@ -38,4 +38,6 @@ public class Post {
 
     @ManyToOne
     private UserData author;
+
+    private String imgUrl;
 }
