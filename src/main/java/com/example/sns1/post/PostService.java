@@ -51,8 +51,8 @@ public class PostService {
         return this.postRepository.save(post);
     }
 
-    public Post getPost(Integer id) {
-        Optional<Post> post = this.postRepository.findById(Long.valueOf(id));
+    public Post getPost(Long id) {
+        Optional<Post> post = this.postRepository.findById(id);
         
         if (post.isPresent()) {
             return post.get();

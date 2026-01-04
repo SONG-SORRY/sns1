@@ -22,7 +22,7 @@ public class UserSecurityService implements UserDetailsService{
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<UserData> _userData = this.userRepository.findByemail(email);
+        Optional<UserData> _userData = this.userRepository.findByEmail(email);
         if (_userData.isEmpty()) {
             throw new UsernameNotFoundException("사용자를 찾을 수 없습니다.");
         }

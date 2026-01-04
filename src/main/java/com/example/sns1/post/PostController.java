@@ -1,6 +1,5 @@
 package com.example.sns1.post;
 
-import com.example.sns1.answer.AnswerForm;
 import com.example.sns1.user.UserData;
 import com.example.sns1.user.UserService;
 
@@ -33,7 +32,7 @@ public class PostController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/")
-    public String list(Model model, PostForm postForm, AnswerForm answerForm) {
+    public String mainpage(Model model) {
         List<Post> postList = this.postService.getList();
         model.addAttribute("postList", postList);
         return "mainpage";
@@ -49,6 +48,12 @@ public class PostController {
         
         Map<String, Object> response = new HashMap<>();
 
+        if (content == null || content.trim().isEmpty()) {
+            response.put("status", "error");
+            response.put("message", "내용을 입력해주세요.");
+            return ResponseEntity.badRequest().body(response);
+        }
+
         try {
             UserData userData = this.userService.getUser(principal.getName());
             
@@ -59,9 +64,9 @@ public class PostController {
 
             response.put("status", "success");
             response.put("postId", savedPost.getId());
+            response.put("content", savedPost.getContent());
             response.put("username", savedPost.getAuthor().getUsername());
             response.put("createDate", formattedDate);
-            response.put("content", savedPost.getContent());
             response.put("imgUrl", savedPost.getImgUrl());
 
             return ResponseEntity.ok(response);

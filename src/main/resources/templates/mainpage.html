@@ -1,15 +1,15 @@
 <html layout:decorate="~{mainpage_layout}">
     <div layout:fragment="content" class="container">
         <div class="write-box">
-            <form id="postForm" onsubmit="return submitPost(event)">
+            <form onsubmit="return submitPost(event)">
                 <textarea id="write-input-box" class="write-input-box" placeholder="무슨 생각을 하고 계신가요?"></textarea>
-                <input type="file" id="fileInput" name="file" style="display: none;" onchange="updateFileName()">
-                <div id="fileNameDisplay" style="font-size: 12px; color: blue; margin-bottom: 5px;"></div>
+                <input type="file" id="file" name="file" style="display: none;" onchange="updateFileName()">
+                <div id="fileNameDisplay" style="font-size: 12px; color: #1877f2; margin-bottom: 5px;"></div>
 
                 <div class="horizontal-line"></div>
                 
                 <div class="write-footer">
-                    <button type="button" class="btn-gray" onclick="document.getElementById('fileInput').click()">추가</button>
+                    <button type="button" class="btn-gray" onclick="document.getElementById('file').click()">추가</button>
                     <button type="submit" class="btn-blue">게시</button>
                 </div>
             </form>
@@ -17,7 +17,7 @@
 
         <div class="post-box" th:each="post : ${postList}">
 
-            <div class="post-left" style="justify-content: flex-start;">
+            <div class="post-left">
                 <div class="post-header">
                     <div th:if="${post.author != null}" 
                         th:text="${post.author.username}" 
@@ -31,7 +31,7 @@
                     <div th:text="${post.content}" style="white-space: pre-wrap;"></div>
                     
                     <div th:if="${post.imgUrl != null}" style="margin-top: 20px;">
-                        <img th:src="${post.imgUrl}" style="max-width: 100%; border-radius: 10px;">
+                        <img th:src="${post.imgUrl}" style="max-width: 100%; border-radius: 20px;">
                     </div>
                 </div>
             </div>
@@ -50,7 +50,7 @@
                 <div class="horizontal-line" th:if="${!post.answerList.isEmpty()}"></div>
                 <form th:onsubmit="'return submitAnswer(this, event, ' + ${post.id} + ')'">
                     <div class="post-footer">
-                        <textarea name="content" class="answer-input-box answer-box" placeholder="댓글을 작성해 주세요."></textarea>
+                        <textarea class="answer-input-box answer-box" placeholder="댓글을 작성해 주세요."></textarea>
                         <button type="submit" class="btn-blue">게시</button>
                     </div>
                 </form>
@@ -73,11 +73,15 @@
 
                 const textarea = form.querySelector("textarea");
                 const content = textarea.value;
+                
 
                 if (content.trim() === "") {
                     alert("내용을 입력해주세요.");
                     return false;
                 }
+
+                const formData = new FormData();
+                formData.append("content", content);
 
                 const csrfTokenNode = document.querySelector('meta[name="_csrf"]');
                 const csrfHeaderNode = document.querySelector('meta[name="_csrf_header"]');
@@ -89,10 +93,9 @@
                     const response = await fetch(`/api/answer/create/${postId}`, {
                         method: "POST",
                         headers: { 
-                            "Content-Type": "application/x-www-form-urlencoded",
                             [header]: token 
                         },
-                        body: `content=${encodeURIComponent(content)}`
+                        body: formData
                     });
 
                     if (response.ok) {
@@ -165,7 +168,7 @@
         <script>
             // 선택된 파일명을 화면에 보여주는 기능.
             function updateFileName() {
-                const fileInput = document.getElementById('fileInput');
+                const fileInput = document.getElementById('file');
                 const fileNameDisplay = document.getElementById('fileNameDisplay');
                 
                 if (fileInput.files.length > 0) {
@@ -181,7 +184,7 @@
 
 
                 const contentInput = document.getElementById('write-input-box');
-                const fileInput = document.getElementById('fileInput');
+                const fileInput = document.getElementById('file');
                 
 
                 const content = contentInput.value;
@@ -223,7 +226,7 @@
 
                             const newPostHtml = `
                             <div class="post-box">
-                                <div class="post-left" style="justify-content: flex-start;"> <div class="post-header" style="margin-bottom: 10px;">
+                                <div class="post-left"> <div class="post-header" style="margin-bottom: 10px;">
                                         <div style="font-weight: bold; color: #050505;">${data.username}</div>
                                         <div>${data.createDate}</div>
                                     </div>   
@@ -258,6 +261,7 @@
                     console.error(error);
                     alert("에러 발생");
                 }
+                return false;
             }
         </script>
     </div>

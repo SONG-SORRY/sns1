@@ -20,11 +20,9 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-                            .requestMatchers("/user/login").permitAll()
-                            .requestMatchers("/user/signup").permitAll()
-                            .requestMatchers("/css/**").permitAll()
-                            .requestMatchers("/js/**").permitAll()
-                            .requestMatchers("/images/**").permitAll()
+                            .requestMatchers("/user/login", "/user/signup").permitAll()
+                            .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                            .requestMatchers("/h2-console/**").hasRole("ADMIN") 
                             .requestMatchers("/**").authenticated())
             .csrf((csrf) -> csrf
                             .ignoringRequestMatchers("/h2-console/**"))

@@ -26,7 +26,7 @@ public class UserService {
     }
 
     public UserData getUser(String username) {
-        Optional<UserData> userData = this.userRepository.findByusername(username);
+        Optional<UserData> userData = this.userRepository.findByUsername(username);
         if (userData.isPresent()) {
             return userData.get();
         } else {
