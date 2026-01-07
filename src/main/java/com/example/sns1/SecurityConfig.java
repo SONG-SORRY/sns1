@@ -25,7 +25,9 @@ public class SecurityConfig {
                             .requestMatchers("/h2-console/**").hasRole("ADMIN") 
                             .requestMatchers("/**").authenticated())
             .csrf((csrf) -> csrf
-                            .ignoringRequestMatchers("/h2-console/**"))
+                            .ignoringRequestMatchers("/h2-console/**")
+                            .ignoringRequestMatchers("/user/login")  
+                            .ignoringRequestMatchers("/api/**"))
             .headers((headers) -> headers
                             .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
             .formLogin((formLogin) -> formLogin

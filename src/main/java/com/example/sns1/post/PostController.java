@@ -1,9 +1,11 @@
 package com.example.sns1.post;
 
+import com.example.sns1.answer.Answer;
 import com.example.sns1.user.UserData;
 import com.example.sns1.user.UserService;
 
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -76,5 +78,63 @@ public class PostController {
             response.put("status", "error");
             return ResponseEntity.status(500).body(response);
         }
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/api/posts")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getPostListApi() {
+        
+        List<Post> postList = this.postService.getList();
+        
+        List<Map<String, Object>> result = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        for (Post post : postList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", post.getId());
+            map.put("content", post.getContent());
+            
+            if (post.getCreateDate() != null) {
+                map.put("createDate", post.getCreateDate().format(formatter));
+            } else {
+                map.put("createDate", "");
+            }
+
+            map.put("imgUrl", post.getImgUrl());
+
+            Map<String, Object> authorMap = new HashMap<>();
+            if (post.getAuthor() != null) {
+                authorMap.put("id", post.getAuthor().getId());
+                authorMap.put("username", post.getAuthor().getUsername());
+            } else {
+                authorMap.put("username", "알 수 없음");
+            }
+            map.put("author", authorMap);
+
+            List<Map<String, Object>> answerList = new ArrayList<>();
+            if (post.getAnswerList() != null) {
+                for (Answer answer : post.getAnswerList()) {
+                    Map<String, Object> answerMap = new HashMap<>();
+                    answerMap.put("id", answer.getId());
+                    answerMap.put("content", answer.getContent());
+                    if (answer.getAuthor() != null) {
+                        Map<String, Object> answerAuthor = new HashMap<>();
+                        answerAuthor.put("username", answer.getAuthor().getUsername());
+                        answerMap.put("author", answerAuthor);
+                    }
+                    
+                    if (answer.getCreateDate() != null) {
+                         answerMap.put("createDate", answer.getCreateDate().format(formatter));
+                    }
+                    answerList.add(answerMap);
+                }
+            }
+            map.put("answerList", answerList);
+
+            result.add(map);
+        }
+
+        return ResponseEntity.ok(result);
     }
 }
