@@ -1,7 +1,6 @@
 package com.example.sns1.user;
 
 import com.example.sns1.DataNotFoundException;
-
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +29,7 @@ public class UserService {
         if (userData.isPresent()) {
             return userData.get();
         } else {
-            throw new DataNotFoundException("siteuser not found");
+            throw new DataNotFoundException("회원정보를 찾을 수 없습니다.");
         }
     }
 }

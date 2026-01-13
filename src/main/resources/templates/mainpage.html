@@ -16,7 +16,6 @@
         </div>
 
         <div class="post-box" th:each="post : ${postList}" th:id="'post-box-' + ${post.id}">
-
             <div class="post-left">
                 <div class="post-header">
                     <div th:if="${post.author != null}" 
@@ -38,7 +37,7 @@
 
             <div class="post-right">
                 <div class="post-answer-footer">
-                    <div class="post-answer-footer-content-box" th:each="answer : ${post.answerList}">
+                    <div class="post-answer-footer-content-box" th:each="answer : ${post.answerList}" th:id="'answer-' + ${answer.id}">
                         <div class="post-header">
                             <div th:if="${answer.author != null}" th:text="${answer.author.username}" style="font-weight: bold; color: #050505;"></div> 
                             <div th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></div>
@@ -90,7 +89,7 @@
                 const header = csrfHeaderNode ? csrfHeaderNode.getAttribute("content") : "";
 
                 try {
-                    const response = await fetch(`/api/answer/create/${postId}`, {
+                    const response = await fetch(`/answer/create/${postId}`, {
                         method: "POST",
                         headers: { 
                             [header]: token 
@@ -102,17 +101,6 @@
                         const data = await response.json();
                             const postBox = form.closest('.post-right');
                             const answerContainer = postBox.querySelector('.post-answer-footer');
-
-                            const newAnswerHtml = `
-                                <div class="post-answer-footer-content-box">
-                                    <div class="post-header">
-                                        <div style="font-weight: bold; color: #050505;">${data.username}</div> 
-                                        <div>${data.createDate}</div>
-                                    </div>
-                                    <div style="white-space: pre-wrap;">${data.content}</div>
-                                </div>
-                            `;
-                            answerContainer.insertAdjacentHTML('beforeend', newAnswerHtml);
                             textarea.value = ""; 
                             answerContainer.scrollTop = answerContainer.scrollHeight; 
                     } else {
@@ -205,7 +193,7 @@
                 const header = csrfHeaderNode ? csrfHeaderNode.getAttribute("content") : "";
 
                 try {
-                    const response = await fetch("/api/post/create", { 
+                    const response = await fetch("/post/create", { 
                         method: "POST",
                         headers: {
                             [header]: token 
@@ -253,7 +241,7 @@
                     <div class="post-box" id="post-box-${post.id}">
                         <div class="post-left">
                             <div class="post-header" style="margin-bottom: 10px;">
-                                <div style="font-weight: bold; color: #050505;">${post.username || (post.author ? post.author.username : '알 수 없음')}</div>
+                                <div style="font-weight: bold; color: #050505;">${post.author ? post.author.username : '알 수 없음'}</div>
                                 <div>${post.createDate}</div>
                             </div>
                             <div class="post-content">
@@ -282,20 +270,14 @@
                 var postBox = document.getElementById('post-box-' + answer.postId);
                 
                 if (postBox) {
-                    var answerContainer = postBox.querySelector('.post-answer-footer');
-                    var lastComment = answerContainer.lastElementChild;
-                    if (lastComment) {
-                        var lastContent = lastComment.querySelector('div[style="white-space: pre-wrap;"]').innerText;
-                        var lastAuthor = lastComment.querySelector('.post-header > div:first-child').innerText;
-                        if (lastContent.trim() === answer.content.trim() && lastAuthor === answer.username) {
-                            return; 
-                        }
-                    }
-
+                    if (document.getElementById('answer-' + answer.id)) {
+                    return; 
+                }
+                    var answerContainer = postBox.querySelector('.post-answer-footer'); 
                     var newAnswerHtml = `
-                        <div class="post-answer-footer-content-box">
+                        <div class="post-answer-footer-content-box" id="answer-${answer.id}">
                             <div class="post-header">
-                                <div style="font-weight: bold; color: #050505;">${answer.username}</div> 
+                                <div style="font-weight: bold; color: #050505;">${answer.author ? answer.author.username : answer.username}</div> 
                                 <div>${answer.createDate}</div>
                             </div>
                             <div style="white-space: pre-wrap;">${answer.content}</div>

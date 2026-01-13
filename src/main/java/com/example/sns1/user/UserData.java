@@ -1,7 +1,6 @@
 package com.example.sns1.user;
 
 import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,7 +13,6 @@ import lombok.Setter;
 @Setter
 @Entity
 public class UserData {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,5 +26,4 @@ public class UserData {
     private String email;
 
     private LocalDateTime createDate;
-    
 }

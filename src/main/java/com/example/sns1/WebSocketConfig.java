@@ -14,17 +14,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 안드로이드 앱용
         registry.addEndpoint("/ws-stomp")
-                .setAllowedOriginPatterns("*");
+                .setAllowedOriginPatterns("http://localhost:8080", "http://192.168.0.27:8080");
 
         // 웹 브라우저용 (SockJS 사용)
         registry.addEndpoint("/ws-stomp-web") 
-                .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns("http://localhost:8080", "http://192.168.0.27:8080")
                 .withSockJS(); 
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/sub");
-        registry.setApplicationDestinationPrefixes("/pub");
+        //registry.setApplicationDestinationPrefixes("/pub");
     }
 }
