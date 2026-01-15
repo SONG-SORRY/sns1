@@ -1,40 +1,67 @@
 package com.example.sns1;
 
-import java.util.HashMap;
+import com.example.sns1.jwt.JwtAuthenticationFilter;
+import com.example.sns1.jwt.JwtTokenProvider;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import java.util.Map;
+import java.util.HashMap;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtTokenProvider jwtTokenProvider;
+
     @Bean
+    @Order(1)
+    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/api/**", "/ws-stomp")
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/login", "/api/signup", "/ws-stomp").permitAll()
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-                            .requestMatchers("/user/login", "/user/signup", "/api/**", "/ws-stomp", "/ws-stomp-web/**").permitAll()
+                            .requestMatchers("/user/login", "/user/signup", "/ws-stomp-web/**").permitAll()
                             .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                             .requestMatchers("/h2-console/**").hasRole("ADMIN") 
-                            .requestMatchers("/**").authenticated())
+                            .anyRequest().authenticated())
             .csrf((csrf) -> csrf
-                            .ignoringRequestMatchers("/h2-console/**")
-                            .ignoringRequestMatchers("/api/**")
-                            .ignoringRequestMatchers("/ws-stomp-web/**"))
+                            .ignoringRequestMatchers("/h2-console/**", "/ws-stomp-web/**"))
             .headers((headers) -> headers
                             .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
-            .formLogin((formLogin) -> formLogin
+            .formLogin((formLogin) -> formLogin     
                             .loginPage("/user/login")
                             .loginProcessingUrl("/user/login")
                             .successHandler((request, response, authentication) -> {
