@@ -14,13 +14,12 @@ public class PostResponseDto {
     private String content;
     private String createDate;
     private List<AnswerDto> answerList;
-    private AuthorDto author;
+    private UserDataDto author;
     private String imgUrl;
 
     @Getter
     @Builder
-    public static class AuthorDto {
-        private Long id;
+    public static class UserDataDto {
         private String username;
     }
 
@@ -30,7 +29,7 @@ public class PostResponseDto {
         private Long id;
         private String content;
         private String createDate;
-        private String username;
+        private UserDataDto author;
         private Long postId;
     }
 
@@ -48,14 +47,17 @@ public class PostResponseDto {
                         .content(answer.getContent())
                         .createDate(answer.getCreateDate() != null ? 
                             answer.getCreateDate().format(formatter) : "")
-                        .username(answer.getAuthor() != null ? answer.getAuthor().getUsername() : "알 수 없음")
+                        .author(answer.getAuthor() != null ? 
+                            UserDataDto.builder()
+                                .username(answer.getAuthor().getUsername())
+                                .build() 
+                            : null)
                         .postId(post.getId())
                         .build())
                     .collect(Collectors.toList()) 
                     : new ArrayList<>())
                 .author(post.getAuthor() != null ? 
-                    AuthorDto.builder()
-                        .id(post.getAuthor().getId())
+                    UserDataDto.builder()
                         .username(post.getAuthor().getUsername())
                         .build() 
                     : null)

@@ -54,7 +54,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
                             .requestMatchers("/user/login", "/user/signup", "/ws-stomp-web/**").permitAll()
-                            .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                            .requestMatchers("/css/**", "/js/**", "/images/**", "/files/**").permitAll()
                             .requestMatchers("/h2-console/**").hasRole("ADMIN") 
                             .anyRequest().authenticated())
             .csrf((csrf) -> csrf

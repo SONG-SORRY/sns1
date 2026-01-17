@@ -81,7 +81,6 @@
 
                 const csrfTokenNode = document.querySelector('meta[name="_csrf"]');
                 const csrfHeaderNode = document.querySelector('meta[name="_csrf_header"]');
-
                 const token = csrfTokenNode ? csrfTokenNode.getAttribute("content") : "";
                 const header = csrfHeaderNode ? csrfHeaderNode.getAttribute("content") : "";
 
@@ -155,7 +154,7 @@
                 const fileNameDisplay = document.getElementById('fileNameDisplay');
                 
                 if (fileInput.files.length > 0) {
-                    fileNameDisplay.textContent = "첨부된 파일: " + fileInput.files[0].name;
+                    fileNameDisplay.textContent = fileInput.files[0].name;
                 } else {
                     fileNameDisplay.textContent = "";
                 }

@@ -11,12 +11,11 @@ public class AnswerResponseDto {
     private String content;
     private String createDate;
     private Long postId;
-    private AuthorDto author;
+    private UserDataDto author;
 
     @Getter
     @Builder
-    public static class AuthorDto {
-        private Long id;
+    public static class UserDataDto {
         private String username;
     }
 
@@ -30,8 +29,7 @@ public class AnswerResponseDto {
                         answer.getCreateDate().format(formatter) : "")
                 .postId(answer.getPost().getId())
                 .author(answer.getAuthor() != null ? 
-                        AuthorDto.builder()
-                            .id(answer.getAuthor().getId())
+                        UserDataDto.builder()
                             .username(answer.getAuthor().getUsername())
                             .build() 
                         : null)
