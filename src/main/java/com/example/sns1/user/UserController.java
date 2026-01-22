@@ -1,5 +1,7 @@
 package com.example.sns1.user;
 
+import com.example.sns1.jwt.JwtTokenProvider;
+
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -7,17 +9,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.example.sns1.jwt.JwtTokenProvider;
-
 import java.util.Map;
+import java.security.Principal;
 import java.util.HashMap;
 import org.springframework.dao.DataIntegrityViolationException;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.ui.Model;
 
 @RequiredArgsConstructor
 @Controller
@@ -119,4 +120,19 @@ public class UserController {
         }
         return response;
     }
+
+    @GetMapping("/user/detail")
+    public String detail(Model model, Principal principal) {
+        String username = principal.getName();
+        UserData userData = this.userService.getUser(username);
+        model.addAttribute("userData", userData);
+        return "detail";
+    }
+
+    @PostMapping("/user/withdrawal")
+    public String signout() {
+        return "redirect:/user/login";
+    }
+    
+    
 }

@@ -1,0 +1,72 @@
+<html layout:decorate="~{mainpage_layout}">
+    <div layout:fragment="content" class="container">
+        <div class="detail-box">
+            <div style="text-align: center; margin-bottom: 20px; font-weight: bold; font-size: 30px;">내 정보</div>
+            <div style="text-align: center;">
+                <div class="label">이메일</div>
+                <div class="box" th:text="${userData.email}"></div>
+                <div class="label">비밀번호 변경</div>
+                <input type="text" name="password1" id="password1" placeholder="비밀번호">
+                <input type="password" name="password2" id="password2" placeholder="비밀번호 (확인)">
+                <div class="label">사용자명</div>
+                <input type="text" name="username" id="username" th:value="${#authentication.name}"></input>
+                <div style="margin-bottom: 10px;">
+                    <form th:action="@{/user/logout}" method="post" style="display:inline;">
+                        <button type="submit" class="nav-item" style="background:none; border:none; padding:0; cursor:pointer; font-weight: bold; color:inherit;">로그아웃</button>
+                    </form>
+                </div>
+                <div>
+                    <form th:action="@{/user/withdrawal}" method="post" style="display:inline;">
+                        <button type="submit" class="nav-item" style="background:none; border:none; padding:0; cursor:pointer; font-weight: bold; color:inherit;">회원탈퇴</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: calc(100vh - 100px);
+            }
+            .detail-box {
+                box-sizing: border-box;
+                background: rgba(255, 255, 255, 0.3); 
+                padding: 20px;
+                width: 500px; 
+                border-radius: 30px; 
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+                text-align: center; 
+            }
+            input { 
+                width: 100%;
+                padding: 12px;
+                margin-bottom: 12px;
+                border: 1px solid #ddd;
+                border-radius: 20px;
+                box-sizing: border-box;
+                outline: none;
+                font-size: 18px;
+            }
+            .box { 
+                width: 100%;
+                padding: 8px 15px;
+                margin-bottom: 12px;
+                border: 1px solid #ddd;
+                border-radius: 20px;
+                box-sizing: border-box;
+                text-align: left; 
+                font-size: 18px;
+                color: #050505;
+            }
+            .label {
+                text-align: left;
+                font-size: 14px;
+                color: #050505;
+                margin-bottom: 5px;
+                margin-left: 5px;
+            }
+        </style>
+    </div>
+</html>
