@@ -49,18 +49,16 @@ public class PostResponseDto {
                             answer.getCreateDate().format(formatter) : "")
                         .author(answer.getAuthor() != null ? 
                             UserDataDto.builder()
-                                .username(answer.getAuthor().getUsername())
+                                .username(answer.getAuthor() != null ? answer.getAuthor().getUsername() : "탈퇴한 사용자")
                                 .build() 
                             : null)
                         .postId(post.getId())
                         .build())
                     .collect(Collectors.toList()) 
                     : new ArrayList<>())
-                .author(post.getAuthor() != null ? 
-                    UserDataDto.builder()
-                        .username(post.getAuthor().getUsername())
-                        .build() 
-                    : null)
+                .author(UserDataDto.builder()
+                        .username(post.getAuthor() != null ? post.getAuthor().getUsername() : "탈퇴한 사용자")
+                        .build())
                 .imgUrl(post.getImgUrl())
                 .build();
     }

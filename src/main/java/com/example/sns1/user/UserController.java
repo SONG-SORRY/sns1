@@ -2,6 +2,8 @@ package com.example.sns1.user;
 
 import com.example.sns1.jwt.JwtTokenProvider;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.ui.Model;
 
@@ -123,16 +126,65 @@ public class UserController {
 
     @GetMapping("/user/detail")
     public String detail(Model model, Principal principal) {
-        String username = principal.getName();
-        UserData userData = this.userService.getUser(username);
+        String email = principal.getName();
+        UserData userData = this.userService.getUser(email);
         model.addAttribute("userData", userData);
         return "detail";
     }
 
-    @PostMapping("/user/withdrawal")
-    public String signout() {
-        return "redirect:/user/login";
+    @PostMapping("/user/changeUsername")
+    public String changeUsername(Principal principal, @RequestParam("newUsername") String newUsername) {
+        try {
+            userService.changeUsername(principal.getName(), newUsername);
+
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserSecurityDetail userSecurityDetail = (UserSecurityDetail) auth.getPrincipal();
+            userSecurityDetail.setNickname(newUsername);
+            
+            Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                userSecurityDetail, auth.getCredentials(), auth.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+        } catch (Exception e) {
+            return "redirect:/user/detail?error=duplicate";
+        }
+        return "redirect:/user/detail";
     }
-    
-    
+
+    @PostMapping("/user/changePassword")
+    public String changePassword(Principal principal, 
+                                 @RequestParam("currentPassword") String currentPassword,
+                                 @RequestParam("newPassword1") String newPassword1,
+                                 @RequestParam("newPassword2") String newPassword2) {
+        if (!newPassword1.equals(newPassword2)) {
+             return "redirect:/user/detail";
+        }
+        try {
+            userService.changePassword(principal.getName(), currentPassword, newPassword1);
+        } catch (Exception e) {
+            return "redirect:/user/detail";
+        }
+        return "redirect:/user/logout";
+    }
+
+    @PostMapping("/user/withdrawal")
+    @ResponseBody
+    public Map<String, Object> withdrawal(@RequestBody Map<String, String> requestData, Principal principal, HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        String password = requestData.get("password");
+        try {
+            userService.withdrawal(principal.getName(), password);
+            SecurityContextHolder.clearContext();
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
+            response.put("status", "success");
+            response.put("message", "회원 탈퇴가 완료되었습니다.");
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage()); 
+        }
+        return response;
+    }
 }

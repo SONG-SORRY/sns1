@@ -5,20 +5,29 @@
             <div style="text-align: center;">
                 <div class="label">이메일</div>
                 <div class="box" th:text="${userData.email}"></div>
-                <div class="label">비밀번호 변경</div>
-                <input type="text" name="password1" id="password1" placeholder="비밀번호">
-                <input type="password" name="password2" id="password2" placeholder="비밀번호 (확인)">
                 <div class="label">사용자명</div>
-                <input type="text" name="username" id="username" th:value="${#authentication.name}"></input>
+                <div class="box" th:text="${userData.username}"></div>
+                <div class="label">사용자명 변경</div>
+                <form th:action="@{/user/changeUsername}" method="post">
+                    <input type="text" name="newUsername" id="newUsername" th:value="${userData.username}"></input>
+                    <button type="submit" class="btn-submit" style="margin-bottom: 10px;">변경</button>
+                </form>
+                <div class="label">비밀번호 변경</div>
+                <form th:action="@{/user/changePassword}" method="post">
+                    <input type="password" name="currentPassword" id="currentPassword" placeholder="현재 비밀번호">
+                    <input type="password" name="newPassword1" id="newPassword1" placeholder="새 비밀번호">
+                    <input type="password" name="newPassword2" id="newPassword2" placeholder="새 비밀번호 (확인)">
+                    <button href="/" type="submit" class="btn-submit" style="margin-bottom: 10px;">변경</button>
+                </form>
                 <div style="margin-bottom: 10px;">
                     <form th:action="@{/user/logout}" method="post" style="display:inline;">
-                        <button type="submit" class="nav-item" style="background:none; border:none; padding:0; cursor:pointer; font-weight: bold; color:inherit;">로그아웃</button>
+                        <button type="submit" class="nav-item" 
+                        style="background:none; border:none; padding:0; cursor:pointer; font-weight: bold; color:inherit;">로그아웃</button>
                     </form>
                 </div>
                 <div>
-                    <form th:action="@{/user/withdrawal}" method="post" style="display:inline;">
-                        <button type="submit" class="nav-item" style="background:none; border:none; padding:0; cursor:pointer; font-weight: bold; color:inherit;">회원탈퇴</button>
-                    </form>
+                    <button type="submit" onclick="withdrawal()" class="nav-item" 
+                    style="background:none; border:none; padding:0; cursor:pointer; font-weight: bold; color:inherit;">회원탈퇴</button>
                 </div>
             </div>
         </div>
@@ -67,6 +76,60 @@
                 margin-bottom: 5px;
                 margin-left: 5px;
             }
+            .btn-submit { 
+                width: 100%; 
+                padding: 12px; 
+                background-color: #1877f2; 
+                color: white; 
+                border: none; 
+                border-radius: 20px; 
+                font-weight: bold; 
+                cursor: pointer; 
+                font-size: 15px; 
+            }
         </style>
+
+        <script>
+            async function withdrawal() {
+                if (!confirm("회원탈퇴를 계속 진행하시겠습니까?\n탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.")) {
+                    return;
+                }
+                const password = prompt("본인 확인을 위해 비밀번호를 입력해 주세요.");
+                if (!password) {
+                    alert("비밀번호를 입력해 주세요.");
+                    return;
+                }
+
+                const csrfTokenNode = document.querySelector('meta[name="_csrf"]');
+                const csrfHeaderNode = document.querySelector('meta[name="_csrf_header"]');
+                const token = csrfTokenNode ? csrfTokenNode.getAttribute("content") : "";
+                const header = csrfHeaderNode ? csrfHeaderNode.getAttribute("content") : "";
+
+                try {
+                    const response = await fetch("/user/withdrawal", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            [header]: token 
+                        },
+                        body: JSON.stringify({
+                            password: password
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.status === "success") {
+                        alert(data.message);
+                        window.location.replace("/user/login");
+                    } else {
+                        alert(data.message);
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("서버 오류가 발생했습니다.");
+                }
+            }
+        </script>
     </div>
 </html>
