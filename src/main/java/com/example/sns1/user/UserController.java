@@ -133,10 +133,11 @@ public class UserController {
     }
 
     @PostMapping("/user/changeUsername")
-    public String changeUsername(Principal principal, @RequestParam("newUsername") String newUsername) {
+    @ResponseBody
+    public Map<String, Object> changeUsername(Principal principal, @RequestParam("newUsername") String newUsername) {
+        Map<String, Object> response = new HashMap<>();
         try {
             userService.changeUsername(principal.getName(), newUsername);
-
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserSecurityDetail userSecurityDetail = (UserSecurityDetail) auth.getPrincipal();
             userSecurityDetail.setNickname(newUsername);
@@ -145,33 +146,50 @@ public class UserController {
                 userSecurityDetail, auth.getCredentials(), auth.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(newAuth);
 
+            response.put("status", "success");
+            response.put("message", "사용자명이 변경되었습니다.");
+            response.put("newUsername", newUsername);
         } catch (Exception e) {
-            return "redirect:/user/detail?error=duplicate";
+            response.put("status", "error");
+            response.put("message", "이미 존재하는 사용자명입니다.");
         }
-        return "redirect:/user/detail";
+        return response;
     }
 
     @PostMapping("/user/changePassword")
-    public String changePassword(Principal principal, 
-                                 @RequestParam("currentPassword") String currentPassword,
-                                 @RequestParam("newPassword1") String newPassword1,
-                                 @RequestParam("newPassword2") String newPassword2) {
+    @ResponseBody
+    public Map<String, Object> changePassword(Principal principal, 
+                                              @RequestParam("currentPassword") String currentPassword,
+                                              @RequestParam("newPassword1") String newPassword1,
+                                              @RequestParam("newPassword2") String newPassword2,
+                                              HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+
         if (!newPassword1.equals(newPassword2)) {
-             return "redirect:/user/detail";
+             response.put("status", "error");
+             response.put("message", "새 비밀번호가 서로 일치하지 않습니다.");
+             return response;
         }
         try {
             userService.changePassword(principal.getName(), currentPassword, newPassword1);
+            SecurityContextHolder.clearContext();
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
+            response.put("status", "success");
+            response.put("message", "비밀번호가 변경되었습니다.");
         } catch (Exception e) {
-            return "redirect:/user/detail";
+            response.put("status", "error");
+            response.put("message", "현재 비밀번호가 일치하지 않습니다.");
         }
-        return "redirect:/user/logout";
+        return response;
     }
 
     @PostMapping("/user/withdrawal")
     @ResponseBody
-    public Map<String, Object> withdrawal(@RequestBody Map<String, String> requestData, Principal principal, HttpServletRequest request) {
+    public Map<String, Object> withdrawal(@RequestParam("password") String password, Principal principal, HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
-        String password = requestData.get("password");
         try {
             userService.withdrawal(principal.getName(), password);
             SecurityContextHolder.clearContext();

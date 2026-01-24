@@ -11,18 +11,3 @@ public class Sns1Application {
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

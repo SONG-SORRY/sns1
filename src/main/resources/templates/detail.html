@@ -3,22 +3,24 @@
         <div class="detail-box">
             <div style="text-align: center; margin-bottom: 20px; font-weight: bold; font-size: 30px;">내 정보</div>
             <div style="text-align: center;">
+
                 <div class="label">이메일</div>
                 <div class="box" th:text="${userData.email}"></div>
+
                 <div class="label">사용자명</div>
-                <div class="box" th:text="${userData.username}"></div>
+                <div class="box" id="username" th:text="${userData.username}"></div>
+
                 <div class="label">사용자명 변경</div>
-                <form th:action="@{/user/changeUsername}" method="post">
-                    <input type="text" name="newUsername" id="newUsername" th:value="${userData.username}"></input>
-                    <button type="submit" class="btn-submit" style="margin-bottom: 10px;">변경</button>
-                </form>
+                <input type="text" name="newUsername" id="newUsername" th:value="${userData.username}"></input>
+                <button type="button" onclick="updateUsername()" class="btn-submit" style="margin-bottom: 10px;">변경</button>
+
                 <div class="label">비밀번호 변경</div>
-                <form th:action="@{/user/changePassword}" method="post">
+                <div>
                     <input type="password" name="currentPassword" id="currentPassword" placeholder="현재 비밀번호">
                     <input type="password" name="newPassword1" id="newPassword1" placeholder="새 비밀번호">
                     <input type="password" name="newPassword2" id="newPassword2" placeholder="새 비밀번호 (확인)">
-                    <button href="/" type="submit" class="btn-submit" style="margin-bottom: 10px;">변경</button>
-                </form>
+                    <button type="button" onclick="updatePassword()" class="btn-submit" style="margin-bottom: 10px;">변경</button>
+                </div>
                 <div style="margin-bottom: 10px;">
                     <form th:action="@{/user/logout}" method="post" style="display:inline;">
                         <button type="submit" class="nav-item" 
@@ -26,7 +28,7 @@
                     </form>
                 </div>
                 <div>
-                    <button type="submit" onclick="withdrawal()" class="nav-item" 
+                    <button type="button" onclick="withdrawal()" class="nav-item" 
                     style="background:none; border:none; padding:0; cursor:pointer; font-weight: bold; color:inherit;">회원탈퇴</button>
                 </div>
             </div>
@@ -90,6 +92,87 @@
         </style>
 
         <script>
+            async function updateUsername() {
+                const newUsername = document.getElementById("newUsername").value;
+                if (!newUsername.trim()) {
+                    alert("변경할 이름을 입력해 주세요.");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append("newUsername", newUsername);
+
+                const csrfTokenNode = document.querySelector('meta[name="_csrf"]');
+                const csrfHeaderNode = document.querySelector('meta[name="_csrf_header"]');
+                const token = csrfTokenNode ? csrfTokenNode.getAttribute("content") : "";
+                const header = csrfHeaderNode ? csrfHeaderNode.getAttribute("content") : "";
+
+                try {
+                    const response = await fetch("/user/changeUsername", {
+                        method: "POST",
+                        headers: { [header]: token },
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+
+                    if (data.status === "success") {
+                        alert(data.message);
+                        document.getElementById("username").innerText = data.newUsername;
+                    } else {
+                        alert(data.message);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert("오류가 발생했습니다.");
+                }
+            }
+
+            async function updatePassword() {
+                const currentPassword = document.getElementById("currentPassword").value;
+                const newPassword1 = document.getElementById("newPassword1").value;
+                const newPassword2 = document.getElementById("newPassword2").value;
+
+                if (!currentPassword || !newPassword1 || !newPassword2) {
+                    alert("모든 비밀번호를 입력해 주세요.");
+                    return;
+                }
+                if (newPassword1 !== newPassword2) {
+                    alert("새 비밀번호가 일치하지 않습니다.");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append("currentPassword", currentPassword);
+                formData.append("newPassword1", newPassword1);
+                formData.append("newPassword2", newPassword2);
+
+                const csrfTokenNode = document.querySelector('meta[name="_csrf"]');
+                const csrfHeaderNode = document.querySelector('meta[name="_csrf_header"]');
+                const token = csrfTokenNode ? csrfTokenNode.getAttribute("content") : "";
+                const header = csrfHeaderNode ? csrfHeaderNode.getAttribute("content") : "";
+
+                try {
+                    const response = await fetch("/user/changePassword", {
+                        method: "POST",
+                        headers: { [header]: token },
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.status === "success") {
+                        alert(data.message);
+                        window.location.replace("/user/login"); 
+                    } else {
+                        alert(data.message);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert("오류가 발생했습니다.");
+                }
+            }
+
             async function withdrawal() {
                 if (!confirm("회원탈퇴를 계속 진행하시겠습니까?\n탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.")) {
                     return;
@@ -105,16 +188,16 @@
                 const token = csrfTokenNode ? csrfTokenNode.getAttribute("content") : "";
                 const header = csrfHeaderNode ? csrfHeaderNode.getAttribute("content") : "";
 
+                const formData = new FormData();
+                formData.append("password", password);
+
                 try {
                     const response = await fetch("/user/withdrawal", {
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/json",
                             [header]: token 
                         },
-                        body: JSON.stringify({
-                            password: password
-                        })
+                        body: formData
                     });
 
                     const data = await response.json();
