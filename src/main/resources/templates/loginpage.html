@@ -59,7 +59,7 @@
                         const data = await response.json();
                         
                         if (data.status === "success") {
-                            location.href = "/";
+                            window.location.replace("/");
                         } else {
                             showError(data.message);
                         }

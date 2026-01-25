@@ -25,8 +25,8 @@
                 </div> 
                 <div class="post-box">
                     <div th:text="${post.content}" style="white-space: pre-wrap;"></div>
-                    <div th:if="${post.imgUrl != null}" style="margin-top: 20px;">
-                        <img th:src="${post.imgUrl}" style="max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 20px;">
+                    <div th:if="${post.imgUrl != null}">
+                        <img th:src="${post.imgUrl}" style="max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 20px; margin-top: 20px;">
                     </div>
                 </div>
             </div>
@@ -245,7 +245,7 @@
                             </div>
                             <div class="post-box">
                                 <div style="white-space: pre-wrap;">${post.content}</div>
-                                ${post.imgUrl ? `<img src="${post.imgUrl}" style="max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 20px;>` : ''}
+                                ${post.imgUrl ? `<img src="${post.imgUrl}" style="max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 20px; margin-top: 20px;">` : ''}
                             </div>
                         </div>
                         <div class="post-right">

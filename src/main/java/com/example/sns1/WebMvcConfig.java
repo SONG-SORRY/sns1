@@ -13,6 +13,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         String projectPath = System.getProperty("user.dir");
         
         registry.addResourceHandler("/files/**")
-                .addResourceLocations("file:///" + projectPath + "/src/main/resources/static/files/");
+                .addResourceLocations("file:" + projectPath + "/src/main/resources/static/files/");
     }
 }

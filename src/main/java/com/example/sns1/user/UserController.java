@@ -20,7 +20,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.ui.Model;
 
 @RequiredArgsConstructor
@@ -31,7 +30,10 @@ public class UserController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @GetMapping("/user/login")
-    public String login() {
+    public String login(Principal principal) {
+        if (principal != null) {
+        return "redirect:/";
+        }
         return "loginpage";
     }
 
@@ -47,10 +49,14 @@ public class UserController {
 
             String jwt = jwtTokenProvider.generateToken(authentication);
 
+            UserSecurityDetail userSecurityDetail = (UserSecurityDetail) authentication.getPrincipal();
+            String nickname = userSecurityDetail.getNickname();
+
             response.put("status", "success");
             response.put("message", "로그인 되었습니다.");
             response.put("token", jwt);
-            response.put("username", authentication.getName());
+            response.put("username", nickname);
+            response.put("email", username);
         } catch (Exception e) {
             response.put("status", "error");
             response.put("message", "아이디 또는 비밀번호가 일치하지 않습니다.");
@@ -68,7 +74,10 @@ public class UserController {
         }
 
     @GetMapping("/user/signup")
-    public String signup(UserCreateForm userCreateForm) {
+    public String signup(UserCreateForm userCreateForm, Principal principal) {
+        if (principal != null) {
+        return "redirect:/";
+        }
         return "signuppage";
     }
 
@@ -202,6 +211,61 @@ public class UserController {
         } catch (Exception e) {
             response.put("status", "error");
             response.put("message", e.getMessage()); 
+        }
+        return response;
+    }
+
+    @PostMapping("/api/changeUsername")
+    @ResponseBody
+    public Map<String, Object> changeUsernameApi(Principal principal, @RequestParam("newUsername") String newUsername) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            userService.changeUsername(principal.getName(), newUsername);
+            response.put("status", "success");
+            response.put("message", "사용자명이 변경되었습니다.");
+            response.put("newUsername", newUsername);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "이미 존재하는 사용자명입니다.");
+        }
+        return response;
+    }
+
+    @PostMapping("/api/changePassword")
+    @ResponseBody
+    public Map<String, Object> changePasswordApi(Principal principal,
+                                              @RequestParam("currentPassword") String currentPassword,
+                                              @RequestParam("newPassword1") String newPassword1,
+                                              @RequestParam("newPassword2") String newPassword2) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (!newPassword1.equals(newPassword2)) {
+             response.put("status", "error");
+             response.put("message", "새 비밀번호가 서로 일치하지 않습니다.");
+             return response;
+        }
+        try {
+            userService.changePassword(principal.getName(), currentPassword, newPassword1);
+            response.put("status", "success");
+            response.put("message", "비밀번호가 변경되었습니다.");
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "현재 비밀번호가 일치하지 않습니다.");
+        }
+        return response;
+    }
+
+    @PostMapping("/api/withdrawal")
+    @ResponseBody
+    public Map<String, Object> withdrawalApi(Principal principal, @RequestParam("password") String password) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            userService.withdrawal(principal.getName(), password);
+            response.put("status", "success");
+            response.put("message", "회원 탈퇴가 완료되었습니다.");
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "비밀번호가 일치하지 않습니다.");
         }
         return response;
     }
