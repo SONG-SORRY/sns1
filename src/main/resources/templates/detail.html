@@ -119,6 +119,10 @@
                     if (data.status === "success") {
                         alert(data.message);
                         document.getElementById("username").innerText = data.newUsername;
+                        const navUsername = document.getElementById("nav-username");
+                        if (navUsername) {
+                            navUsername.innerText = data.newUsername;
+                        }
                     } else {
                         alert(data.message);
                     }
