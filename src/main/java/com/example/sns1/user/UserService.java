@@ -1,7 +1,6 @@
 package com.example.sns1.user;
 
 import com.example.sns1.DataNotFoundException;
-import com.example.sns1.answer.AnswerHistory;
 import com.example.sns1.answer.AnswerHistoryRepository;
 import com.example.sns1.answer.AnswerRepository;
 import com.example.sns1.post.PostHistoryRepository;

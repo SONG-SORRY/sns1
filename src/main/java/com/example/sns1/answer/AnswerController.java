@@ -6,10 +6,7 @@ import com.example.sns1.user.UserData;
 import com.example.sns1.user.UserSecurityDetail;
 import com.example.sns1.user.UserService;
 
-import jakarta.transaction.Transactional;
-
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
